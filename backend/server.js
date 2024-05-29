@@ -55,7 +55,7 @@ const swaggerOptions = {
         info: {
             title: 'User Management API',
             version: '1.0.0',
-            description: 'API para gestionar usuarios',
+            description: 'API to manage users developed by Maryori Sabalza',
         },
         servers: [
             {
