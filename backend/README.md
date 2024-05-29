@@ -45,3 +45,9 @@ Go to http://localhost:5000/api/users
 - DELETE
 
 ![alt text](delete_user.png)
+
+## Documentation 
+
+Go to http://localhost:5000/docs/
+
+![alt text](docs.png)
