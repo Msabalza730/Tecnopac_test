@@ -50,4 +50,4 @@ Go to http://localhost:5000/api/users
 
 Go to http://localhost:5000/docs/
 
-![alt text](docs.png)
+![alt text](docs-1.png)
