@@ -31,8 +31,8 @@ Go to http://localhost:5000/api/users
 ## API CRUD
 
 - GET
-
-![alt text](GET_USER_API.png)
+backend/img/GET_USER_API.png
+![alt text](backend/img/GET_USER_API.png)
 
 - POST
 
