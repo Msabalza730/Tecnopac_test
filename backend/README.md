@@ -31,23 +31,27 @@ Go to http://localhost:5000/api/users
 ## API CRUD
 
 - GET
-backend/img/GET_USER_API.png
-![alt text](backend/img/GET_USER_API.png)
+
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/54f3df04-99ee-46a7-9eac-fd29b7d27946)
+
 
 - POST
 
-![alt text](post_users.png)
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/8324982f-7ca9-4265-9785-107a9f490973)
 
 - PUT
 
-![alt text](put_users.png)
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/07ad59aa-c507-41b6-ada6-5e4498181ece)
+
 
 - DELETE
 
-![alt text](delete_user.png)
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/463be624-0a45-4b15-913b-b678366f661e)
+
 
 ## Documentation 
 
 Go to http://localhost:5000/docs/
 
-![alt text](docs-1.png)
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/6e474742-e3b2-48a2-ad1c-cf7772596707)
+
