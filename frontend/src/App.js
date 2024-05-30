@@ -5,7 +5,8 @@ import './App.css';
 function App() {
     return (
         <div className="App">
-            <h1>User Management System - Maryori Sabalza</h1>
+            <h1>User Management System</h1>
+            <h3>Maryori Sabalza Mejia</h3>
             <UserTable />
         </div>
     );

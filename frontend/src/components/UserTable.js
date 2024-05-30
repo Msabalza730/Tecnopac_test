@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
 function UserTable() {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
@@ -10,7 +11,7 @@ function UserTable() {
         axios.get('http://localhost:5000/api/users')
             .then(response => {
                 if (response.data) {
-                    console.log("Received data:", response.data); // Log the received data
+                    console.log("Received data:", response.data); 
                     setUsers(response.data);
                 } else {
                     setError('No user data found');
@@ -27,7 +28,7 @@ function UserTable() {
             username: 'NewUser',
             user_role: 'UserRole',
             status: 'active',
-            social_profile: JSON.stringify([]), // Ensure this is a JSON string
+            social_profile: JSON.stringify([]),
             promote: false,
             rating: 0,
             last_login: new Date().toISOString()
@@ -35,7 +36,7 @@ function UserTable() {
 
         axios.post('http://localhost:5000/api/users', newUser)
             .then(response => {
-                console.log("User added:", response.data); // Log the added user data
+                console.log("User added:", response.data);
                 setUsers([...users, { ...newUser, id: response.data.id }]);
             })
             .catch(error => {
@@ -49,7 +50,7 @@ function UserTable() {
             username: 'UpdatedUser',
             user_role: 'UpdatedRole',
             status: 'inactive',
-            social_profile: JSON.stringify([]), // Ensure this is a JSON string
+            social_profile: JSON.stringify([]), 
             promote: true,
             rating: 5,
             last_login: new Date().toISOString()
@@ -57,7 +58,7 @@ function UserTable() {
 
         axios.put(`http://localhost:5000/api/users/${id}`, updatedUser)
             .then(response => {
-                console.log("User updated:", response.data); // Log the updated user data
+                console.log("User updated:", response.data); 
                 const updatedUsers = users.map(user => {
                     if (user.id === id) {
                         return { ...user, ...updatedUser };
@@ -75,13 +76,32 @@ function UserTable() {
     const deleteUser = (id) => {
         axios.delete(`http://localhost:5000/api/users/${id}`)
             .then(response => {
-                console.log("User deleted:", response.data); // Log the deleted user data
+                console.log("User deleted:", response.data); 
                 setUsers(users.filter(user => user.id !== id));
             })
             .catch(error => {
                 console.error('There was an error deleting the user!', error);
                 setError('There was an error deleting the user');
             });
+    };
+
+    const togglePromote = (id) => {
+        const updatedUsers = users.map(user => {
+            if (user.id === id) {
+                const updatedUser = { ...user, promote: !user.promote };
+                axios.put(`http://localhost:5000/api/users/${id}`, updatedUser)
+                    .then(response => {
+                        console.log("User promote status updated:", response.data);
+                    })
+                    .catch(error => {
+                        console.error('There was an error updating the promote status!', error);
+                        setError('There was an error updating the promote status');
+                    });
+                return updatedUser;
+            }
+            return user;
+        });
+        setUsers(updatedUsers);
     };
 
     const renderSocialProfiles = (profiles) => {
@@ -104,7 +124,6 @@ function UserTable() {
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString();
     };
-
 
     return (
         <div className="container mt-5">
@@ -143,11 +162,23 @@ function UserTable() {
                         users.map(user => (
                             <tr key={user.id}>
                                 <td><input type="checkbox" /></td>
-                                <td>{user.username} <img src={user.photo} alt={user.username} style={{ width: '30px', borderRadius: '50%', marginLeft: '10px' }} /></td>
+                                <td>
+                                    <img 
+                                        src={user.photo || 'path/to/default.jpg'} 
+                                        alt={user.username} 
+                                        style={{ width: '30px', borderRadius: '50%', marginRight: '10px' }} 
+                                    />
+                                    {user.username}
+                                </td>
                                 <td>{user.user_role}</td>
                                 <td>{user.status}</td>
                                 <td>{renderSocialProfiles(user.social_profile)}</td>
-                                <td><button className="btn btn-link">{user.promote ? 'Yes' : 'No'}</button></td>
+                                <td>
+                                    <label className="switch">
+                                        <input type="checkbox" checked={user.promote} onChange={() => togglePromote(user.id)} />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </td>
                                 <td>{user.rating}</td>
                                 <td>{formatDate(user.last_login)}</td>
                                 <td>
