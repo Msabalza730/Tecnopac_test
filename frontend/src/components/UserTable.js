@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserShield, faEye, faUser, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 
 function UserTable() {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [username, setUsername] = useState('');
+    const [userRole, setUserRole] = useState('');
 
     useEffect(() => {
         axios.get('http://localhost:5000/api/users')
@@ -24,20 +31,25 @@ function UserTable() {
     }, []);
 
     const addUser = () => {
+        setShowAddModal(true);
+    };
+
+    const handleAddUser = () => {
         const newUser = {
-            username: 'NewUser',
-            user_role: 'UserRole',
+            username: username,
+            user_role: userRole,
             status: 'active',
             social_profile: JSON.stringify([]),
             promote: false,
-            rating: 0,
-            last_login: new Date().toISOString()
+            rating: 0, 
+            last_login: new Date().toISOString(), 
+            photo: 'https://cdn-icons-png.flaticon.com/256/3135/3135823.png' 
         };
 
         axios.post('http://localhost:5000/api/users', newUser)
             .then(response => {
-                console.log("User added:", response.data);
-                setUsers([...users, { ...newUser, id: response.data.id }]);
+                setUsers([...users, response.data]);
+                setShowAddModal(false);
             })
             .catch(error => {
                 console.error('There was an error adding the user!', error);
@@ -45,33 +57,40 @@ function UserTable() {
             });
     };
 
-    const updateUser = (id) => {
+    const editUser = (id) => {
+        setSelectedUserId(id);
+        setShowEditModal(true);
+    };
+
+    const handleEditUser = () => {
         const updatedUser = {
-            username: 'UpdatedUser',
-            user_role: 'UpdatedRole',
-            status: 'inactive',
-            social_profile: JSON.stringify([]), 
-            promote: true,
-            rating: 5,
-            last_login: new Date().toISOString()
+            username: username,
+            user_role: userRole,
+            status: 'active',
+            social_profile: JSON.stringify([]),
+            promote: false,
+            rating: 0, 
+            last_login: new Date().toISOString(), 
+            photo: 'https://cdn-icons-png.flaticon.com/256/3135/3135823.png' 
         };
 
-        axios.put(`http://localhost:5000/api/users/${id}`, updatedUser)
+        axios.put(`http://localhost:5000/api/users/${selectedUserId}`, updatedUser)
             .then(response => {
-                console.log("User updated:", response.data); 
                 const updatedUsers = users.map(user => {
-                    if (user.id === id) {
-                        return { ...user, ...updatedUser };
+                    if (user.id === selectedUserId) {
+                        return { ...user, ...response.data };
                     }
                     return user;
                 });
                 setUsers(updatedUsers);
+                setShowEditModal(false);
             })
             .catch(error => {
                 console.error('There was an error updating the user!', error);
                 setError('There was an error updating the user');
             });
     };
+
 
     const deleteUser = (id) => {
         axios.delete(`http://localhost:5000/api/users/${id}`)
@@ -105,28 +124,118 @@ function UserTable() {
     };
 
     const renderSocialProfiles = (profiles) => {
-        if (!profiles || profiles === "[]") {
-            return "No profiles"; // Return a default message if no profiles are available
-        }
-        try {
-            const parsedProfiles = JSON.parse(profiles);
-            return parsedProfiles.map(profile => (
-                <a href={profile.url} key={profile.network} target="_blank" rel="noopener noreferrer">
-                    <img src={`icons/${profile.network}.png`} alt={profile.network} style={{ width: '20px', marginRight: '5px' }} />
-                </a>
-            ));
-        } catch (e) {
-            console.error('Error parsing social profiles', e);
-            return null;
-        }
+        const getIconClass = (network) => {
+            switch (network) {
+                case 'twitter':
+                    return 'fab fa-twitter';
+                case 'facebook':
+                    return 'fab fa-facebook';
+                case 'instagram':
+                    return 'fab fa-instagram';
+                case 'linkedin':
+                    return 'fab fa-linkedin';
+                default:
+                    return 'fas fa-globe';
+            }
+        };
+    
+        return profiles.map(profile => (
+            <a href={profile.url} key={profile.network} target="_blank" rel="noopener noreferrer">
+                <i className={getIconClass(profile.network)} style={{ fontSize: '20px', marginRight: '5px' }}></i>
+            </a>
+        ));
     };
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString();
     };
 
+    const getRoleIcon = (role) => {
+        switch (role.toLowerCase()) {
+            case 'administrator':
+            case 'admin':
+                return <FontAwesomeIcon icon={faUserShield} style={{ marginRight: '5px' }} />;
+            case 'viewer':
+                return <FontAwesomeIcon icon={faEye} style={{ marginRight: '5px' }} />;
+            case 'moderator':
+                return <FontAwesomeIcon icon={faUser} style={{ marginRight: '5px' }} />;
+            default:
+                return null;
+        }
+    };
+
+    const getRatingIcon = (rating) => {
+        if (rating > 4) {
+            return <FontAwesomeIcon icon={faArrowUp} style={{ color: 'green', marginRight: '5px' }} />;
+        } else {
+            return <FontAwesomeIcon icon={faArrowDown} style={{ color: 'red', marginRight: '5px' }} />;
+        }
+    };
+
     return (
         <div className="container mt-5">
+            {/* Add User Modal */}
+            <div className="modal fade" id="addUserModal" tabIndex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="addUserModalLabel">Add New User</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <form>
+                                <div className="form-group">
+                                    <label htmlFor="username">Username</label>
+                                    <input type="text" className="form-control" id="username" placeholder="Enter username" value={username} onChange={e => setUsername(e.target.value)} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="userRole">User Role</label>
+                                    <input type="text" className="form-control" id="userRole" placeholder="Enter user role" value={userRole} onChange={e => setUserRole(e.target.value)} />
+                                </div>
+                                {/* Add other input fields here */}
+                            </form>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={handleAddUser}>Add User</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Edit User Modal */}
+            <div className="modal fade" id="editUserModal" tabIndex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="editUserModalLabel">Edit User</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <form>
+                                <div className="form-group">
+                                    <label htmlFor="editUsername">Username</label>
+                                    <input type="text" className="form-control" id="editUsername" placeholder="Enter username" value={username} onChange={e => setUsername(e.target.value)} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="editUserRole">User Role</label>
+                                    <input type="text" className="form-control" id="editUserRole" placeholder="Enter user role" value={userRole} onChange={e => setUserRole(e.target.value)} />
+                                </div>
+                                {/* Add other input fields here */}
+                            </form>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" onClick={handleEditUser}>Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {error && <div className="alert alert-danger">{error}</div>}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>All Users: {users.length}</span>
@@ -170,8 +279,23 @@ function UserTable() {
                                     />
                                     {user.username}
                                 </td>
-                                <td>{user.user_role}</td>
-                                <td>{user.status}</td>
+                                <td>
+                                    {getRoleIcon(user.user_role)}
+                                    {user.user_role}
+                                </td>
+                                <td>
+                                    <span 
+                                        style={{
+                                            display: 'inline-block',
+                                            width: '10px',
+                                            height: '10px',
+                                            borderRadius: '50%',
+                                            backgroundColor: user.status === 'active' ? 'green' : 'red',
+                                            marginRight: '5px'
+                                        }}
+                                    ></span>
+                                    {user.status}
+                                </td>
                                 <td>{renderSocialProfiles(user.social_profile)}</td>
                                 <td>
                                     <label className="switch">
@@ -179,10 +303,13 @@ function UserTable() {
                                         <span className="slider round"></span>
                                     </label>
                                 </td>
-                                <td>{user.rating}</td>
+                                <td>
+                                    {getRatingIcon(user.rating)}
+                                    {user.rating}
+                                </td>
                                 <td>{formatDate(user.last_login)}</td>
                                 <td>
-                                    <button className="btn btn-sm btn-warning mr-2" onClick={() => updateUser(user.id)}>Edit</button>
+                                    <button className="btn btn-sm btn-warning mr-2" onClick={() => handleEditUser(user.id)}>Edit</button>
                                     <button className="btn btn-sm btn-danger" onClick={() => deleteUser(user.id)}>Delete</button>
                                 </td>
                             </tr>
