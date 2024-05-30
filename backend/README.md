@@ -32,8 +32,7 @@ Go to http://localhost:5000/api/users
 
 - GET
 
-![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/54f3df04-99ee-46a7-9eac-fd29b7d27946)
-
+![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/feae77b6-51aa-4b13-9d97-20811d505df7)
 
 - POST
 
