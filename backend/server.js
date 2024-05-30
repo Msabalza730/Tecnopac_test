@@ -40,7 +40,8 @@ const createUserTable = `
         social_profile JSON,
         promote BOOLEAN DEFAULT false,
         rating INT DEFAULT 0,
-        last_login DATETIME
+        last_login DATETIME,
+        photo VARCHAR(255)
     )
 `;
 db.query(createUserTable, (err, result) => {
@@ -101,12 +102,13 @@ app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
  *         description: Server Error
  */
 app.post('/api/users', (req, res) => {
-    const { username, user_role, status, social_profile, promote, rating, last_login } = req.body;
+    const { username, user_role, status, social_profile, promote, rating, last_login, photo } = req.body;
     const formattedLastLogin = moment(last_login).format('YYYY-MM-DD HH:mm:ss');
 
-    const query = 'INSERT INTO users (username, user_role, status, social_profile, promote, rating, last_login) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    db.query(query, [username, user_role, status, JSON.stringify(social_profile), promote, rating, formattedLastLogin], (err, result) => {
+    const query = 'INSERT INTO users (username, user_role, status, social_profile, promote, rating, last_login, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [username, user_role, status, JSON.stringify(social_profile), promote, rating, formattedLastLogin, photo], (err, result) => {
         if (err) {
+            console.error('Error inserting user:', err);
             res.status(500).send(err);
             return;
         }
@@ -176,12 +178,13 @@ app.get('/api/users', (req, res) => {
  */
 app.put('/api/users/:id', (req, res) => {
     const { id } = req.params;
-    const { username, user_role, status, social_profile, promote, rating, last_login } = req.body;
+    const { username, user_role, status, social_profile, promote, rating, last_login, photo } = req.body;
     const formattedLastLogin = moment(last_login).format('YYYY-MM-DD HH:mm:ss');
 
-    const query = 'UPDATE users SET username = ?, user_role = ?, status = ?, social_profile = ?, promote = ?, rating = ?, last_login = ? WHERE id = ?';
-    db.query(query, [username, user_role, status, JSON.stringify(social_profile), promote, rating, formattedLastLogin, id], (err, result) => {
+    const query = 'UPDATE users SET username = ?, user_role = ?, status = ?, social_profile = ?, promote = ?, rating = ?, last_login = ?, photo = ? WHERE id = ?';
+    db.query(query, [username, user_role, status, JSON.stringify(social_profile), promote, rating, formattedLastLogin, photo, id], (err, result) => {
         if (err) {
+            console.error('Error updating user:', err);
             res.status(500).send(err);
             return;
         }
