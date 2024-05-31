@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserShield, faEye, faUser, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { faFacebook, faTwitter, faInstagram } from "@fortawesome/free-brands-svg-icons";
 import EditUserModal from './EditUserModal';
-import Pagination from './Pagination';
+import Pagination from '@mui/material/Pagination';
 
 function UserTable() {
     const [users, setUsers] = useState([]);
@@ -20,34 +20,27 @@ function UserTable() {
     const [status, setStatus] = useState('');
     const [rating, setRating] = useState('');
     const [socialProfile, setSocialProfile] = useState('');
-    const [page, setPage] = useState(0);
-    const rowsPerPage = 5;
-
+    const [page, setPage] = useState(1);
+    const rowsPerPage = 10;
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
 
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-
-    const rowsToShow = users.slice(startIndex, endIndex);
 
     useEffect(() => {
         axios.get('http://localhost:5000/api/users')
             .then(response => {
                 if (response.data) {
-                    console.log("Received data:", response.data); 
                     setUsers(response.data);
                 } else {
                     setError('No user data found');
                 }
             })
             .catch(error => {
-                console.error('There was an error fetching the users!', error);
                 setError('There was an error fetching the users');
             });
-    }, []);
+    }, []); 
 
     const addUser = () => {
         setUsername('');
@@ -300,7 +293,7 @@ function UserTable() {
 
             {error && <div className="alert alert-danger">{error}</div>}
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <span>All Users: {users.length} Projects: 884</span>
+                <span>All Users: <strong>{users.length}</strong> Projects: <strong>884</strong></span>
                 <button className="btn btn-light">⚙️ Table Settings</button>
             </div>
 
@@ -383,6 +376,14 @@ function UserTable() {
                 )}
             </tbody>            
         </table>
+        <Pagination
+                count={Math.ceil(users.length / rowsPerPage)}
+                page={page}
+                onChange={handleChangePage}
+                color="primary"
+                shape="rounded"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}
+        />
     </div>
     );
 }
