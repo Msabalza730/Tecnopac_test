@@ -28,6 +28,5 @@ You may also see any lint errors in the console.
 
 - Delete a user
   
-Press  Delete Button
 ![image](https://github.com/Msabalza730/Tecnopac_test/assets/55921624/1c6e7f56-f0fb-4b3a-8f05-8aeef86efd5d)
 
